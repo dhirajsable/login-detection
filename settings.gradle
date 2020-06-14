@@ -1,1 +1,3 @@
 rootProject.name = 'login-detection'
+include 'login-detection-client'
+

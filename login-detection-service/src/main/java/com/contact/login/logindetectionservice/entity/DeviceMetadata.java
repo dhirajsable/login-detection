@@ -1,9 +1,9 @@
-package com.contact.login.logindetection.entity;
+package com.contact.login.logindetectionservice.entity;
+
+import java.util.Date;
 
 public class DeviceMetadata {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Long userId;
     private String deviceDetails;
