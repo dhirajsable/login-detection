@@ -65,16 +65,20 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
     }
 
     private String getIpLocation(String ip) throws IOException, GeoIp2Exception {
-
         String location = UNKNOWN;
-        InetAddress ipAddress = InetAddress.getByName("23.229.103.88");
+        InetAddress ipAddress = InetAddress.getByName(ip);
+        try {
+            CityResponse cityResponse = databaseReader.city(ipAddress);
+            if (Objects.nonNull(cityResponse) &&
+                    Objects.nonNull(cityResponse.getCity()) &&
+                    !Strings.isNullOrEmpty(cityResponse.getCity().getName())) {
 
-        CityResponse cityResponse = databaseReader.city(ipAddress);
-        if (Objects.nonNull(cityResponse) &&
-                Objects.nonNull(cityResponse.getCity()) &&
-                !Strings.isNullOrEmpty(cityResponse.getCity().getName())) {
-
-            location = cityResponse.getCity().getName();
+                location = cityResponse.getCity().getName();
+            }
+        } catch (Exception ex) {
+            /**
+             * TODO Add logs here.
+             */
         }
         return location;
     }
