@@ -1,5 +1,7 @@
 package com.contact.login.logindetectionservice.entity;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,7 +20,7 @@ public class DeviceMetadata {
     long id;
 
     @Column(name = "userid")
-    private Long userId;
+    private long userId;
 
     @Column(name = "devicedetails")
     private String deviceDetails;
@@ -29,11 +31,16 @@ public class DeviceMetadata {
     @Column(name = "lastloggedin")
     private Date lastLoggedIn;
 
-    @Column(name = "createddate")
+    @Column(name = "createddate", nullable = false, updatable = false)
+    @CreationTimestamp
     private Date createdDate;
 
-    @Column(name = "updatedate")
+    @Column(name = "updatedate", nullable = false)
+    @CreationTimestamp
     private Date updatedate;
+
+    @Column(name ="isdeviceverified")
+    private boolean isDeviceVerified;
 
     public long getId() {
         return id;
@@ -43,11 +50,11 @@ public class DeviceMetadata {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 
@@ -89,5 +96,13 @@ public class DeviceMetadata {
 
     public void setUpdatedate(Date updatedat) {
         this.updatedate = updatedat;
+    }
+
+    public boolean isDeviceVerified() {
+        return isDeviceVerified;
+    }
+
+    public void setDeviceVerified(boolean deviceVerified) {
+        isDeviceVerified = deviceVerified;
     }
 }

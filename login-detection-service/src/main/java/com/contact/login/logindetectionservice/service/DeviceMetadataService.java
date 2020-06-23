@@ -7,5 +7,5 @@ import java.io.IOException;
 
 public interface DeviceMetadataService {
 
-    String addDeviceMetadata(HttpServletRequest request) throws IOException, GeoIp2Exception;
+    String registerDevice(HttpServletRequest request) throws IOException, GeoIp2Exception;
 }

@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
@@ -34,17 +36,26 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
     DeviceMetadataRepository metadataRepository;
 
     @Override
-    public String addDeviceMetadata(HttpServletRequest request) throws IOException, GeoIp2Exception {
+    public String registerDevice(HttpServletRequest request) throws IOException, GeoIp2Exception {
         String ip = extractIp(request);
         String location = getIpLocation(ip);
         String deviceDetails = getDeviceDetails(request.getHeader("user-agent"));
-
         long userId = 100;
-        DeviceMetadata deviceMetadata = new DeviceMetadata();
-        deviceMetadata.setUserId(userId);
-        deviceMetadata.setLocation(location);
-        deviceMetadata.setDeviceDetails(deviceDetails);
-        metadataRepository.save(deviceMetadata);
+        DeviceMetadata deviceMetadata = findExistingDevice(userId, deviceDetails, location);
+        if (Objects.isNull(deviceMetadata)) {
+            /*
+             * Send login notification email to user for verification.
+             */
+            DeviceMetadata newDeviceMetadata = new DeviceMetadata();
+            newDeviceMetadata.setUserId(userId);
+            newDeviceMetadata.setLocation(location);
+            newDeviceMetadata.setDeviceDetails(deviceDetails);
+            newDeviceMetadata.setLastLoggedIn(new Date());
+            metadataRepository.save(newDeviceMetadata);
+        } else {
+            deviceMetadata.setLastLoggedIn(new Date());
+            metadataRepository.save(deviceMetadata);
+        }
         return deviceDetails;
     }
 
@@ -66,7 +77,7 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
 
     private String getIpLocation(String ip) throws IOException, GeoIp2Exception {
         String location = UNKNOWN;
-        InetAddress ipAddress = InetAddress.getByName(ip);
+        InetAddress ipAddress = InetAddress.getByName("24.130.95.173");
         try {
             CityResponse cityResponse = databaseReader.city(ipAddress);
             if (Objects.nonNull(cityResponse) &&
@@ -91,6 +102,17 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
                     " - " + client.os.family + " " + client.os.major + "." + client.os.minor;
         }
         return deviceDetails;
+    }
+
+    private DeviceMetadata findExistingDevice(Long userId, String deviceDetails, String location) {
+        List<DeviceMetadata> knownDevices = metadataRepository.findByUserId(userId);
+        for (DeviceMetadata existingDevice : knownDevices) {
+            if (existingDevice.getDeviceDetails().equals(deviceDetails) &&
+                    existingDevice.getLocation().equals(location)) {
+                return existingDevice;
+            }
+        }
+        return null;
     }
 
 
