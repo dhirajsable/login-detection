@@ -25,7 +25,7 @@ public class LoginDetectionController {
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUser(HttpServletRequest request) throws IOException, GeoIp2Exception {
-        String message = metadataService.addDeviceMetadata(request);
+        String message = metadataService.registerDevice(request);
         return ResponseEntity.status(HttpStatus.OK).body(message);
     }
 }
