@@ -2,6 +2,7 @@ package com.contact.login.logindetectionservice.service;
 
 import com.contact.login.logindetectionservice.entity.DeviceMetadata;
 import com.contact.login.logindetectionservice.entity.DeviceMetadataRepository;
+import com.contact.login.logindetectionservice.rest.request.IsLoginAllowed;
 import com.google.common.base.Strings;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
@@ -57,6 +58,34 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
             metadataRepository.save(deviceMetadata);
         }
         return deviceDetails;
+    }
+
+    @Override
+    public boolean allowLoginOrRegisterDevice(IsLoginAllowed isLoginAllowed, HttpServletRequest request) throws IOException, GeoIp2Exception {
+        String ip = extractIp(request);
+        String location = getIpLocation(ip);
+        String deviceDetails = getDeviceDetails(request.getHeader("user-agent"));
+        long userId = isLoginAllowed.getUserId();
+        DeviceMetadata deviceMetadata = findExistingDevice(userId, deviceDetails, location);
+        if (Objects.isNull(deviceMetadata)) {
+            /*
+             * Send login notification email to user for verification.
+             */
+            DeviceMetadata newDeviceMetadata = new DeviceMetadata();
+            newDeviceMetadata.setUserId(userId);
+            newDeviceMetadata.setLocation(location);
+            newDeviceMetadata.setDeviceDetails(deviceDetails);
+            newDeviceMetadata.setLastLoggedIn(new Date());
+            metadataRepository.save(newDeviceMetadata);
+            return false;
+        } else {
+            deviceMetadata.setLastLoggedIn(new Date());
+            metadataRepository.save(deviceMetadata);
+            if (deviceMetadata.isDeviceVerified()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String extractIp(HttpServletRequest request) {
