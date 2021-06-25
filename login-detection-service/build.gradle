@@ -1,34 +1,22 @@
 plugins {
-    id 'org.springframework.boot' version '2.3.1.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-    id 'java'
-}
-
-group = 'com.contact.login'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
-
-repositories {
-    mavenCentral()
+    id 'java-library'
 }
 
 dependencies {
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '2.3.0.RELEASE'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.3.0.RELEASE'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.2.6.RELEASE'
-    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: versions.springframework
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: versions.springframework
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.5.2'
 
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
+    implementation group: 'org.springframework.security', name: 'spring-security-config', version: versions.springSecurity
+    implementation group: 'org.springframework.security', name: 'spring-security-core', version: versions.springSecurity
+    implementation group: 'org.springframework.security', name: 'spring-security-config', version: versions.springSecurity
+    implementation group: 'org.springframework.security', name: 'spring-security-web', version: versions.springSecurity
 
-    compile group: 'org.springframework.security', name: 'spring-security-config', version: '3.2.0.RELEASE'
-    compile group: 'org.springframework.security', name: 'spring-security-core', version: '5.3.0.RELEASE'
-    compile group: 'org.springframework.security', name: 'spring-security-config', version: '5.3.0.RELEASE'
-    compile group: 'org.springframework.security', name: 'spring-security-web', version: '5.3.0.RELEASE'
-    // https://mvnrepository.com/artifact/com.maxmind.geoip2/geoip2
-    compile group: 'com.maxmind.geoip2', name: 'geoip2', version: '2.14.0'
-    // https://mvnrepository.com/artifact/com.google.guava/guava
-    compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
-    compile group: 'com.github.ua-parser', name: 'uap-java', version: '1.4.3'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
+    implementation group: 'com.maxmind.geoip2', name: 'geoip2', version: '2.14.0'
+    implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+    implementation group: 'com.github.ua-parser', name: 'uap-java', version: '1.4.3'
 
     implementation("org.springframework.security:spring-security-web") {
         setTransitive(false)
@@ -40,6 +28,16 @@ dependencies {
     }
 }
 
-test {
-    useJUnitPlatform()
+bootJar {
+    enabled = true
+}
+
+bootBuildImage {
+    enabled = false
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
